@@ -7,6 +7,8 @@ import json
 import spotipy
 import webbrowser
 import time
+import requests
+import json
 import spotipy.util as util
 from json.decoder import JSONDecodeError
 from os import system, name
@@ -167,10 +169,90 @@ def spotify():
                 break
 
 def netflix():
-    print("--- Netflix ---")
-    line = input()
-    option = int(line)
-    print(option)
+    option = 0
+    while(option == 0):
+        system('clear')
+        print("--- Netflix ---")
+        print()
+        print("0) Buscar pelicula")
+        print("1) Regresar al menu principal")
+        print()
+        choice = input("Selecciona una opcion: ")
+        # Search for artist
+        if choice == "0":
+            system('clear')
+            print("--- Netflix ---")
+            print()
+            print("* Para regresar escribir: -regresar")
+            print()
+            movie = input("Pelicula a buscar: ")
+            print()
+            print("Buscando...")
+            print()
+
+            if movie == "-regresar":
+                pass
+            else:
+                try:
+                    url = "https://unogsng.p.rapidapi.com/search"
+
+                    querystring = {"query":movie}
+
+                    headers = {
+                        'x-rapidapi-key': "3758ec7ff8msh359f1f771180b29p1e80bfjsn72906a727e22",
+                        'x-rapidapi-host': "unogsng.p.rapidapi.com"
+                        }
+
+                    url = "https://unogsng.p.rapidapi.com/search"
+
+                    response = requests.request("GET", url, headers=headers, params=querystring)
+
+                    if response.status_code == 200:
+
+                        system('clear')
+                        print("--- Netflix ---")
+                        print()
+                        print("Resultados encontrados")
+                        print()
+                        movie_count = 0
+                        movieIds = []
+                        for movie in response.json()['results']:
+                            movieIds.append(movie["nfid"])
+                            print(str(movie_count) + ")")
+                            print(" - Titulo: " + movie['title'])
+                            print(" - Sinopsis: ")
+                            print("\t" + movie['synopsis'])
+                            print("---------------------------------------")
+                            movie_count = movie_count + 1 
+                        print()
+                        print("x) Escoger otra pelicula ")
+                        print()
+                        selection = input("Selecciona una pelicula: ")
+
+                        if selection == "x":
+                            pass
+                        else:
+                            webbrowser.open("https://www.netflix.com/watch/" + str(movieIds[int(selection)]))
+                            continue
+                    else:
+                        system('clear')
+                        print("--- Netflix ---")
+                        print()
+                        print("Resultados no encontrados...")
+                        print()
+                        time.sleep(2)
+                        pass
+                except:
+                    system('clear')
+                    print("--- Netflix ---")
+                    print()
+                    print("Resultados no encontrados...")
+                    print()
+                    time.sleep(2)
+                    pass
+        if choice == "1":
+            option = 1
+            break
 
 def usb():
     print("--- USB ---")
