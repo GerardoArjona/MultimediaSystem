@@ -9,7 +9,9 @@ import webbrowser
 import time
 import requests
 import json
-import spotipy.util as util
+import psutil
+import vlc
+import random
 from json.decoder import JSONDecodeError
 from os import system, name
 
@@ -255,11 +257,161 @@ def netflix():
             break
 
 def usb():
-    print("--- USB ---")
-    line = input()
-    option = int(line)
-    print(option)
+    import usb
+    option = 0
+    while(option == 0):
+        system('clear')
+        print("--- USB ---")
+        print()
+        drives = []
+        drive_count = 0
 
+        partitions = psutil.disk_partitions()
 
+        for p in partitions:
+            mounts = p.mountpoint.split("/")
+            if(mounts[1] == "media" and mounts[2] == "pi"):
+                drives.append(p.mountpoint)
+                print(str(drive_count) + ") " + mounts[-1])
+                drive_count = drive_count + 1
+        print()
+        print("x) Regresar")
+        print()
+
+        selection = input("Selecciona un USB: ")
+
+        if(selection == "x"):
+            break
+
+        try:
+            music = []
+            images = []
+            movies = []
+            usb_content = os.listdir(drives[int(selection)])
+            vlc_instance = vlc.Instance()
+            player = vlc_instance.media_player_new()
+            system('clear')
+            print("--- USB ---")
+            print()
+            for usb_file in usb_content:
+                usb_file_type = usb_file.split(".")[-1]
+                if(usb_file_type == "mp3"):
+                    music.append(usb_file)
+                elif(usb_file_type == "mp4"):
+                    movies.append(usb_file)
+                elif(usb_file_type == "jpg" or usb_file_type == "jpeg"):
+                    images.append(usb_file)
+            if(len(music) > 0):
+                print("m) Musica")
+            if(len(music) > 0):
+                print("p) Peliculas o videos")
+            if(len(music) > 0):
+                print("i) Imagenes o fotos")
+            print()
+            print("x) Regresar")
+            print()
+            usb_media_selection = input("Selecciona: ")
+            if(usb_media_selection == "m"):
+                # timer = threading.timer(5, new_song)
+                # timer.start()
+                playing_song = ""
+                auto_song = True
+                while(True):
+                    system('clear')
+                    print("--- USB ---")
+                    print()
+                    song_count = 0
+                    if(auto_song == True):
+                        player.stop()
+                        playing_song = music[random.randint(0, len(music) - 1 )]
+                        source = drives[int(selection)] + "/" + music[random.randint(0, len(music) - 1 )]
+                        media = vlc_instance.media_new(source)
+                        player.set_media(media)
+                        player.play()
+                    for song in music:
+                        if(playing_song == song):
+                            print(str(song_count)+ ") "+ song + " <------- Reproduciendo") 
+                        else:
+                            print(str(song_count)+ ") "+ song)
+                        song_count = song_count + 1
+                    print()
+                    print("x) Regresar")
+                    print()
+                    song_selection = input("Selecciona una cancion: ")
+                    if(song_selection == "x"):
+                        player.stop()
+                        break
+                    else:
+                        player.stop()
+                        auto_song = False
+                        playing_song = music[int(song_selection)]
+                        source = drives[int(selection)] + "/" + music[int(song_selection)]
+                        media = vlc_instance.media_new(source)
+                        player.set_media(media)
+                        player.play()
+            elif(usb_media_selection == "p"):
+                playing_movie = ""
+                while(True):
+                    system('clear')
+                    print("--- USB ---")
+                    print()
+                    movie_count = 0
+                    for movie in movies:
+                        if(playing_movie == movie):
+                            print(str(movie_count) + ") " + movie + " <------- Reproduciendo") 
+                        else:
+                            print(str(movie_count) + ") " + movie)
+                        movie_count = movie_count + 1
+                    print()
+                    print("x) Regresar")
+                    print()
+                    movie_selection = input("Selecciona una pelicula o video: ")
+                    if(movie_selection == "x"):
+                        player.stop()
+                        break
+                    else:
+                        player.stop()
+                        playing_movie = movies[int(movie_selection)]
+                        source = drives[int(selection)] + "/" + movies[int(movie_selection)]
+                        media = vlc_instance.media_new(source)
+                        player.set_media(media)
+                        player.play()
+            elif(usb_media_selection == "i"):
+                vlc_i = vlc.Instance()
+                image_player = vlc_i.media_list_player_new()
+                while True:
+                    system('clear')
+                    print("--- USB ---")
+                    print()
+                    slideshow_images = []
+                    for image in images:
+                        print(image)
+                        slideshow_images.append(drives[int(selection)] + "/" + image)
+                    Media = vlc_instance.media_list_new(slideshow_images)
+                    try:
+                        image_player.set_media_list(Media)
+                        for index, name in enumerate(slideshow_images):
+                            print(name)
+                            image_player.play_item_at_index(index)
+                            time.sleep(5)
+                        image_player.stop()
+                    except Exception as e:
+                        print(e)
+                    system('clear')
+                    print("--- USB ---")
+                    print()
+                    print("Las imagenes se han mostrado, favor de regresar")
+                    print()
+                    print("x) Regresar")
+                    print()
+                    image_selection = input("Selecciona: ")
+                    if(image_selection == "x"):
+                        image_player.stop()
+                        break
+            elif(usb_media_selection == "x"):
+                pass
+
+        except: 
+            pass
 
 main()
