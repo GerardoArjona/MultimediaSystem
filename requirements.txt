@@ -1,0 +1,10 @@
+certifi==2020.12.5
+chardet==4.0.0
+idna==2.10
+psutil==5.8.0
+python-vlc==3.0.11115
+pyusb==1.1.1
+requests==2.25.1
+six==1.15.0
+spotipy==2.16.1
+urllib3==1.26.3
