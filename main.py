@@ -286,9 +286,12 @@ def netflix():
             option = 1
             break
 
+# Módulo: USB
 def usb():
     import usb
     option = 0
+    # Se muestran las memorias USB conectadas y se da la opción al usuario de seleccionar
+    # de cual de ellas reproducir los archivos multimedia
     while(option == 0):
         system('clear')
         print("--- USB ---")
@@ -313,6 +316,11 @@ def usb():
         if(selection == "x"):
             break
 
+        # Seleccionada la USB se analiza esta y vertifica que tipo de archivo se tiene
+        # si existen mp3 se activa la opcion de música, si se tiene mp4 se activa la
+        # funcionalidad de peliculas y si se tiene jpg se activa la opcion de imagenes. 
+        # Si alguno de estos tipos de archivos no se encuentra presente, no se muestra la
+        # opcion.
         try:
             music = []
             images = []
@@ -341,11 +349,13 @@ def usb():
             print("x) Regresar")
             print()
             usb_media_selection = input("Selecciona: ")
+            # Si se selecciona m de musica, 
             if(usb_media_selection == "m"):
-                # timer = threading.timer(5, new_song)
-                # timer.start()
                 playing_song = ""
                 auto_song = True
+                # Se muestran los archivos mp3 contenidos en la usb para poder seleccionar
+                # cual se desee reproducir, agregando, al entrar a esta sección se reproduce
+                # automáticamente una canción
                 while(True):
                     system('clear')
                     print("--- USB ---")
@@ -372,6 +382,8 @@ def usb():
                         player.stop()
                         break
                     else:
+                        # Al seleccionar una canción se detiene el reproductor y se inicia 
+                        # nuevamente con la ruta de la nueva canción a reproducir
                         player.stop()
                         auto_song = False
                         playing_song = music[int(song_selection)]
@@ -379,8 +391,11 @@ def usb():
                         media = vlc_instance.media_new(source)
                         player.set_media(media)
                         player.play()
+            # Si se selecciona p de peliculas
             elif(usb_media_selection == "p"):
                 playing_movie = ""
+                # Se muestran los archivos mp4 contenidos en la usb para poder seleccionar
+                # cual se desee reproducir
                 while(True):
                     system('clear')
                     print("--- USB ---")
@@ -400,15 +415,21 @@ def usb():
                         player.stop()
                         break
                     else:
+                        # Al seleccionar una canción se detiene el reproductor y se inicia 
+                        # nuevamente con la ruta de la nueva pelicula a reproducir
                         player.stop()
                         playing_movie = movies[int(movie_selection)]
                         source = drives[int(selection)] + "/" + movies[int(movie_selection)]
                         media = vlc_instance.media_new(source)
                         player.set_media(media)
                         player.play()
+            # Si se selecciona i de imagenes
             elif(usb_media_selection == "i"):
                 vlc_i = vlc.Instance()
                 image_player = vlc_i.media_list_player_new()
+                # Automáticamente se reproducen las imagenes en modo slideshow y
+                # al finalizar este se avisa al usuario y le da la opción de regresar 
+                # al menu inteior
                 while True:
                     system('clear')
                     print("--- USB ---")
@@ -438,6 +459,7 @@ def usb():
                     if(image_selection == "x"):
                         image_player.stop()
                         break
+            # Opción x regresa al menu anterior
             elif(usb_media_selection == "x"):
                 pass
 
