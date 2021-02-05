@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+# Se importan las librerias necesarias
 import os
 import sys
 import json
@@ -15,9 +16,13 @@ import random
 from json.decoder import JSONDecodeError
 from os import system, name
 
+# Se crea una función principal que llama a un función menú, 
+# para mostrar el menú en consola
 def main():
     menu()
 
+# Función menú, la cual da acceso a los distintos módulos del centro
+# multimedia
 def menu():
     option = 0
     while(option != 4):
@@ -45,22 +50,26 @@ def menu():
         else:
             pass
 
+#Módulo: Spotify
 def spotify():
     option = 0
     while(option == 0):
         print("--- Spotify ---")
+        # Permisos del usuario al momnento de usar la API de Spotify
         scope = 'user-read-private user-read-playback-state user-modify-playback-state'
         username = input("Nombre de usuario: ")
         try:
+            # Se intenta obtener el token de autenticación de la API
             token = util.prompt_for_user_token(username, scope)
         except (AttributeError, JSONDecodeError):
+            # Si falla, se limpia la cache y se obtiene el token de autenticación
             os.remove(f".cache-{username}")
             token = util.prompt_for_user_token(username, scope)
 
-        # Spotify object  
+        # Objeto Spotify, que nos dará acceso a la información de Spotify 
         spotifyObject = spotipy.Spotify(auth=token)
         
-        # User information
+        # Información del usuario
         system('clear') 
         user = spotifyObject.current_user()
         displayName = user['display_name']
@@ -69,7 +78,7 @@ def spotify():
         print("------> Bienvenido a Spotify " + displayName)
         print()
 
-        #Devices
+        # Dispositivos conectados y vinculados al usuario de Spotify
         devices = spotifyObject.devices()
         selected_device = None
         device_index = 0
@@ -81,6 +90,8 @@ def spotify():
         selected_device = input("Selecciona un dispositvo donde reproducir: ")
         deviceID = devices['devices'][int(selected_device)]['id']
 
+        # Se muestra el menú principal del módulo, en el cual se seleccionará si
+        # se desea cambiar de dispositivo o buscar a un artista
         while True:
             system('clear')
             print()
@@ -92,9 +103,10 @@ def spotify():
             print("2) Regresar al menu principal")
             print()
             choice = input("Selecciona una opcion: ")
-            # Search for artist
+            # Buscar artista
             if choice == "0":
                 print()
+                # Se obtiene el nombre del artista y se busca usando el objeto spotify
                 searchQuery = input("Nombre:")
                 searchResults = spotifyObject.search(searchQuery,1,0,"artist")
                 print()
@@ -103,7 +115,7 @@ def spotify():
                 print("------> Bienvenido a Spotify " + displayName)
                 print("---------> Dispositivo: " + devices['devices'][int(selected_device)]['name'])
                 print()
-                # Print artist details
+                # Durante dos segundos se muestra la información relevante del artista encontrado
                 artist = searchResults['artists']['items'][0]
                 print(">>>> Artista: "+ artist['name'])
                 print(">>>> Followers: "+ str(artist['followers']['total']) + " followers")
@@ -112,20 +124,21 @@ def spotify():
                 artistID = artist['id']
                 print()
                 time.sleep(2)
-                # Album details
+                # Se muestran los detalles de los albums del artista
                 trackURIs = []
                 trackArt = []
                 z = 0
-                # Extract data from album
+                # De cada album obtenemos cada canción
                 albumResults = spotifyObject.artist_albums(artistID)
                 albumResults = albumResults['items']
 
+                # Mostramos cada albúm
                 for item in albumResults:
                     print("ALBUM: " + item['name'])
                     albumID = item['id']
                     albumArt = item['images'][0]['url']
 
-                    # Extract track data
+                    # Obtenemos y mostramos cada canción del album en cuestión
                     trackResults = spotifyObject.album_tracks(albumID)
                     trackResults = trackResults['items']
 
@@ -138,7 +151,9 @@ def spotify():
                 
                 print("x) Escoger otro artista ")
                 print()
-                # See album art
+                
+                # De acuerdo a la selección del usuario se reproduce la canción
+                # en el dispositivo seleccionado
                 while True:
                     try:
                         songSelection = input("Selecciona una cancion: ")
@@ -146,11 +161,14 @@ def spotify():
                             break
                         trackSelectionList = []
                         trackSelectionList.append(trackURIs[int(songSelection)])
+                        # Se reproduce la canción seleccionado en el dispositivo seleccionado
                         spotifyObject.start_playback(deviceID, None, trackSelectionList)
+                        # En el navegador se muestra la imagen del album en cuestión
                         webbrowser.open(trackArt[int(songSelection)])
                     except:
                         pass
 
+            # Seleccionamos el dispositivo en donde reproducir la música
             if choice == "1":
                 system('clear')
                 selected_device = None
@@ -159,19 +177,25 @@ def spotify():
                 print("------> Bienvenido a Spotify " + displayName)
                 print()
                 print("Dispositivos:")
+                # Se muestran los dispositivos disponibles y se espera una seleccion por
+                # parte del usuario
                 for device in devices['devices']:
                     print(str(device_index)+") " + device['name'])
                     device_index = device_index + 1
                 print()
                 selected_device = input("Selecciona un dispositvo donde reproducir: ")
+                # Se almacena el dispositivo seleccionado
                 deviceID = devices['devices'][int(selected_device)]['id']
-
+            
+            # Salimos del módulo
             if choice == "2":
                 option = 1
                 break
 
+# Módulo: Netflix
 def netflix():
     option = 0
+    # Se muestra el menú principal del módulo y la busqueda de película
     while(option == 0):
         system('clear')
         print("--- Netflix ---")
@@ -180,7 +204,7 @@ def netflix():
         print("1) Regresar al menu principal")
         print()
         choice = input("Selecciona una opcion: ")
-        # Search for artist
+        # Busqueda de película
         if choice == "0":
             system('clear')
             print("--- Netflix ---")
@@ -195,6 +219,7 @@ def netflix():
             if movie == "-regresar":
                 pass
             else:
+                # Usando la selección del usuario y una api de terceros se realiza una búsqueda en Netflix
                 try:
                     url = "https://unogsng.p.rapidapi.com/search"
 
@@ -209,6 +234,7 @@ def netflix():
 
                     response = requests.request("GET", url, headers=headers, params=querystring)
 
+                    # Si la busqueda es existosa se muestran las opciones de peliculas a elegir al usuario
                     if response.status_code == 200:
 
                         system('clear')
@@ -234,8 +260,11 @@ def netflix():
                         if selection == "x":
                             pass
                         else:
+                            # De acuerdo a la seleccion del usuario se despliega una navegador conteniendo la url
+                            # exacta de la pelicula a ver en Netflix.
                             webbrowser.open("https://www.netflix.com/watch/" + str(movieIds[int(selection)]))
                             continue
+                    # si la busqueda falla se muestra un mensaje de fallo y se regresa al menu principal
                     else:
                         system('clear')
                         print("--- Netflix ---")
@@ -252,6 +281,7 @@ def netflix():
                     print()
                     time.sleep(2)
                     pass
+        # Salida del modulo
         if choice == "1":
             option = 1
             break
